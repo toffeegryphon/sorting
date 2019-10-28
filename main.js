@@ -1,131 +1,8 @@
 import { Node, Queue } from './structures.js';
-
-export function initialise(canvas, width, height) {
-    canvas.width = width;
-    canvas.height = height;
-}
-
-export function drawArray(canvas, arr, clear = true, offset = 0) {
-    let ctx = canvas.getContext('2d');
-
-    if (clear) {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        ctx.fill();
-    }
-
-    ctx.fillStyle = '#000000';
-    var i = 0
-    while (i < arr.length) {
-        ctx.beginPath();
-        ctx.rect((i+offset)*10, 0, 8, arr[i]*5);
-        ctx.fill();
-        i += 1;
-    }
-}
-
-function execute(canvases, arrays, queue, working) {
-    if (queue.head != undefined) {
-        var action = queue.dequeue();
-        switch (action[0]) {
-            case 'swap':
-                [arrays[0][action[1]], arrays[0][action[2]]] = [arrays[0][action[2]], arrays[0][action[1]]];
-                drawArray(canvases[0], arrays[0]);
-                window.requestAnimationFrame(() => {
-                    execute(canvases, arrays, queue);
-                });
-                break;
-                
-            case 'copy':
-                if (action[1] == 0) {
-                    arrays[action[2]] = arrays[action[1]].slice(action[3], action[4]+1);
-                    if (action[2] == 1) {
-                        working = [action[3], action[4]];
-                    } else {
-                        working.push(action[3], action[4]);
-                    }
-                } else {
-                    if (action[4] == 0) {
-                        arrays[action[2]][working[0]] = arrays[action[1]].shift();
-                        working[0] ++;
-                    } else {
-                        if (arrays[1].length > 0) {
-                            arrays[action[2]].splice(working[0], arrays[1].length, ...arrays[1]);
-                        }
-                    }
-                }
-                drawArray(canvases[action[2]], arrays[action[2]]);
-                window.requestAnimationFrame(() => {
-                    execute(canvases, arrays, queue, working);
-                });
-                break;
-        }
-    }
-}
+import { initialise, drawArray, execute } from './graphics.js';
+import { insertionSort, mergeSort } from './sorting.js';
 
 // TODO Comparisons should also be an action
-
-function insertionSort(arr, queue) {
-    var i = 1;
-    while (i < arr.length) {
-        var j = i;
-        while (j > 0 && arr[j] < arr[j-1]) {
-            [arr[j-1], arr[j]] = [arr[j], arr[j-1]];
-            // Should not use queue, as unable to select stage
-            queue.enqueue(new Node(['swap', j-1, j]));
-            j--;
-        }
-        i++;
-    }
-    return [arr, queue];
-}
-
-function mergeSort(arr, queue, left = 0, right = -1, length = -1) {
-
-    function merge(left, right, queue) {
-        var arr = [];
-        var tQ = new Queue(new Node(0));
-        while (left.length > 0 && right.length > 0) {
-            tQ.enqueue((left[0] < right[0] ? new Node(['copy', 1, 0, 0, 0]) : new Node(['copy', 2, 0, 0, 0])));
-            arr.push((left[0] < right[0] ? left.shift() : right.shift()));
-        }
-    
-        tQ.enqueue(new Node(['copy', 1, 0, 0, left.length-1]));
-        tQ.enqueue(new Node(['copy', 2, 0, 0, right.length-1]));
-        tQ.dequeue();
-        arr = arr.concat(left, right);
-        return [arr, tQ];
-    }
-
-    if (right == -1) {
-        right = arr.length-1;
-        length = arr.length;
-    }
-    var centre = Math.floor((left + right+1)/2);
-
-    var leftRes = [], rightRes = [];
-
-    var leftRes = (left == centre-1 ? [[arr[left]]] : mergeSort(arr, queue, left, centre-1, length));
-
-    (leftRes.length > 1 ? queue.join(leftRes[1]) : undefined);
-
-    var rightRes = (centre == right ? [[arr[centre]]] : mergeSort(arr, queue, centre, right, length));
-
-    //merge queue, leftQ, rightQ
-    
-    (rightRes.length > 1 ? queue.join(rightRes[1]) : undefined);
-
-    queue.enqueue(new Node(['copy', 0, 1, left, centre-1]));
-    queue.enqueue(new Node(['copy', 0, 2, centre, right]));
-
-    var res = merge(leftRes[0], rightRes[0], queue);
-    if (res[0].length == length) {
-        return [res[0], queue.join(res[1])];
-    }
-
-    return res;
-}
 
 var arr = Array.from({length: 100}, () => Math.floor(Math.random() * 40));
 console.log(arr);
@@ -161,4 +38,158 @@ window.requestAnimationFrame(() => {
         [drawArr, [], []],
         action
     );
-})
+});
+
+// Node constructor
+(function() {
+    try {
+        let node = new Node(0, new Node(1));
+        console.log('Test 1 passed');
+    } catch (error) {
+        console.log('Test 1 failed');
+        console.error(error);
+    }
+} ());
+
+(function() {
+    try {
+        let node = new Node(0, 1);
+        console.log('Test 2 failed');
+        console.error('Failed to catch error');
+    } catch (error) {
+        console.log('Test 2 passed');
+    }
+} ());
+
+// Queue constructor
+(function(queue) {
+    try {
+        let queue = new Queue(new Node(0));
+        if (queue.head.value != 0) {
+            throw new Error(`head should be 0 but is ${queue.head}`);
+        }
+        if (queue.tail.value != 0) {
+            throw new Error(`tail should be 0 but is ${queue.tail}`);
+        }
+        if (queue.size != 1) {
+            throw new Error(`size should be 1 but is ${queue.size}`);
+        }
+        console.log('Test 3 passed');
+    } catch (error) {
+        console.log('Test 3 failed');
+        console.error(error);
+    }
+} ());
+
+(function() {
+    try {
+        let queue = new Queue(new Node(0, new Node(1)));
+        if (queue.head.value != 0) {
+            throw new Error(`head should be 0 but is ${queue.head}`);
+        }
+        if (queue.tail.value != 1) {
+            throw new Error(`tail should be 1 but is ${queue.tail}`);
+        }
+        if (queue.size != 2) {
+            throw new Error(`size should be 2 but is ${queue.size}`);
+        }
+        console.log('Test 4 passed');
+    } catch (error) {
+        console.log('Test 4 failed');
+        console.error(error);
+    }
+} ());
+
+(function() {
+    try {
+        let queue = new Queue(0);
+        console.log('Test 5 failed');
+        console.error('Failed to catch error');
+    } catch (error) {
+        console.log('Test 5 passed');
+    }
+} ());
+
+// Queue enqueue
+(function() {
+    try {
+        let queue = new Queue(new Node(0));
+        queue.enqueue(new Node(1));
+        if (queue.head.value != 0) {
+            throw new Error(`head should be 0 but is ${queue.head}`);
+        }
+        if (queue.tail.value != 1) {
+            throw new Error(`tail should be 1 but is ${queue.tail}`);
+        }
+        if (queue.size != 2) {
+            throw new Error(`size should be 2 but is ${queue.size}`);
+        }
+        console.log('Test 6 passed');
+    } catch (error) {
+        console.log('Test 6 failed');
+        console.error(error);
+    }
+} ());
+
+(function() {
+    try {
+        let queue = new Queue(new Node(0));
+        queue.enqueue(0);
+        console.log('Test 7 failed');
+        console.error('Failed to catch error');
+    } catch (error) {
+        console.log('Test 7 passed');
+    }
+} ());
+
+// Queue dequeue
+(function() {
+    try {
+        let queue = new Queue(new Node(0));
+        let value = queue.dequeue();
+        if (value != 0) {
+            throw new Error(`value should be 0 but is ${value}`);
+        }
+        if (queue.size != 0) {
+            throw new Error(`queue.size should be 0 but is ${queue.size}`);
+        }
+        console.log('Test 8 passed');
+    } catch (error) {
+        console.log('Test 8 failed');
+        console.error(error);
+    }
+} ());
+
+// Queue join
+(function() {
+    try {
+        let queue = new Queue(new Node(0));
+        let appendix = new Queue(new Node(1));
+        appendix.enqueue(new Node(2));
+        queue.join(appendix);
+        if (queue.head.value != 0) {
+            throw new Error(`head should be 0 but is ${queue.head}`);
+        }
+        if (queue.tail.value != 2) {
+            throw new Error(`tail should be 2 but is ${queue.tail}`);
+        }
+        if (queue.size != 3) {
+            throw new Error(`size should be 3 but is ${queue.size}`);
+        }
+        console.log('Test 9 passed');
+    } catch (error) {
+        console.log('Test 9 failed');
+        console.error(error);
+    }
+} ());
+
+(function() {
+    try {
+        let queue = new Queue(new Node(0));
+        queue.join(0);
+        console.log('Test 10 failed');
+        console.error('Failed to catch error');
+    } catch (error) {
+        console.log('Test 10 passed');
+    }
+} ());

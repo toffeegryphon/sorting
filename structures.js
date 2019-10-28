@@ -2,6 +2,10 @@
 
 export class Node {
     constructor(value, next = undefined) {
+        if (!(next === undefined || next.constructor.name === 'Node')) {
+            throw new TypeError('next must be undefined or node');
+        }
+
         this.value = value;
         this.next = next;
     }
@@ -10,13 +14,25 @@ export class Node {
 export class Queue {
 
     constructor(node) {
+        if (node.constructor.name !== 'Node') {
+            throw new TypeError('must be node');
+        }
+
         this.head = node;
-        this.tail = node;
         this.size = 1;
+        while (node.next != undefined) {
+            node = node.next;
+            this.size ++;
+        }
+        this.tail = node;
     }
 
     enqueue(node) {
         // enqueue(...Node)
+        if (node.constructor.name !== 'Node') {
+            throw new TypeError('must be node');
+        }
+
         this.tail.next = node;
         this.tail = node;
         this.size ++;
@@ -32,6 +48,10 @@ export class Queue {
 
     join(queue) {
         // join(...Queue)
+        if (queue.constructor.name !== 'Queue') {
+            throw new TypeError('must be queue');
+        }
+
         this.tail.next = queue.head;
         this.tail = queue.tail;
         this.size += queue.size;
