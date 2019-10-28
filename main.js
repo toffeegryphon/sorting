@@ -1,14 +1,5 @@
 import { Node, Queue } from './structures.js';
 
-// var queue = new Queue(new Node(0));
-// var i = 1
-// while (i < 10) {
-//     queue.enqueue(new Node(i));
-//     i++;
-// }
-// console.log(queue);
-// console.log(queue.toArray());
-
 export function initialise(canvas, width, height) {
     canvas.width = width;
     canvas.height = height;
@@ -47,43 +38,27 @@ function execute(canvases, arrays, queue, working) {
                 break;
                 
             case 'copy':
-                // console.log(action);
                 if (action[1] == 0) {
-                    // Not drawing properly
                     arrays[action[2]] = arrays[action[1]].slice(action[3], action[4]+1);
-                    // console.log(arrays[action[2]]);
                     if (action[2] == 1) {
                         working = [action[3], action[4]];
                     } else {
                         working.push(action[3], action[4]);
                     }
-                    // console.log(working);
-
-                    drawArray(canvases[action[2]], arrays[2]);
-                    window.requestAnimationFrame(() => {
-                        execute(canvases, arrays, queue, working);
-                    })
                 } else {
                     if (action[4] == 0) {
                         arrays[action[2]][working[0]] = arrays[action[1]].shift();
                         working[0] ++;
-                        // console.log(arrays[action[2]]);
-                        drawArray(canvases[action[2]], arrays[action[2]]);
-                        window.requestAnimationFrame(() => {
-                            execute(canvases, arrays, queue, working);
-                        })
                     } else {
-                        // console.log(arrays[action[2]]);
                         if (arrays[1].length > 0) {
                             arrays[action[2]].splice(working[0], arrays[1].length, ...arrays[1]);
                         }
-                        // console.log(arrays[action[2]]);
-                        drawArray(canvases[action[2]], arrays[action[2]]);
-                        window.requestAnimationFrame(() => {
-                            execute(canvases, arrays, queue, working);
-                        })
                     }
                 }
+                drawArray(canvases[action[2]], arrays[action[2]]);
+                window.requestAnimationFrame(() => {
+                    execute(canvases, arrays, queue, working);
+                });
                 break;
         }
     }
