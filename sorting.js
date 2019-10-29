@@ -60,3 +60,42 @@ export function mergeSort(arr, queue, left = 0, right = -1, length = -1) {
 
     return res;
 }
+
+export function countingSort(arr, queue) {
+    //  Runs in 2O(n) time
+    let min = Math.min(...arr), max = Math.max(...arr); 
+    //  Create array of size (number of unique elements) in O(k) time, O(k) space
+    let count = Array(max-min+1).fill(0);
+    queue.enqueue(new Node(['create', min, max]));
+
+    //  Runs in O(n) time
+    arr.forEach(e => {
+        count[e-min]++; // Increment number of such elements by 1
+        queue.enqueue(new Node(['increment', e-min, 1]));
+    }); 
+    /* 
+        Takes O(k + n) time. 
+        Think of a 2 stage process:
+        O(k) time to remove all count[c] = 0
+        O(n) time to replace n elements back into source arr
+    */
+    let c = 0, a = 0;
+    queue.enqueue(new Node(['working', a]));
+    while (c < count.length) { 
+        while (count[c] > 0) {
+            arr[a] = c + min;
+            queue.enqueue(new Node(['copy', 1, 0, c + min, -2]));
+            a++;
+            count[c] = count[c]-1;
+            queue.enqueue(new Node(['decrement', c, 1]));
+        }
+        c++
+    }
+    /*
+        Overall, runs in ~O(n + k) time
+        and takes O(k + 1) space
+        As long as k << n^2,
+        Time complexity is O(n)
+    */
+    return [arr, queue];
+}
