@@ -99,3 +99,78 @@ export function countingSort(arr, queue) {
     */
     return [arr, queue];
 }
+
+/*
+    Partition "sort" for Dutch National Flag Problem    
+
+    Time complexity of O(n).
+    Extension of Mathematical Induction.
+
+    // first = a, last = -b.
+
+    At i-th case,
+    first a elements and last b elements are completely sorted,
+        i.e. first a are 0s and last b are 2s;
+    first i elements are sorted within its own reference array,
+        i.e. first a are 0s and first i-a are 1s.
+
+    If i == 0:
+        then swap elements a and i,
+        will be in correct order.
+
+                    a          i      -b
+        [0, ..., 0, 1, ..., 1, 0, ..., 2, ..., 2]
+        [0, ..., 0, 0, ..., 1, 1, ..., 2, ..., 2]
+
+    If i == 1:
+        then move on, as
+        the first i elements are still sorted.
+
+                    a          i      -b
+        [0, ..., 0, 1, ..., 1, 1, ..., 2, ..., 2]
+
+    If i == 2:
+        swap elements i and -b,
+        however needs to recheck element i
+        since it can be anything.
+
+                    a          i         -b
+        [0, ..., 0, 1, ..., 1, 2, ..., x, 2, ..., 2]
+        [0, ..., 0, 0, ..., 1, x, ..., 2, 2, ..., 2]
+
+    Values of all elements will be checked,
+    hence O(n) time complexity.
+    O(1) space complexity due to
+    in place sorting of input array.
+*/
+export function partition(arr, queue) {
+
+    // Base case
+    let i = 0, first = 0, last = arr.length - 1;
+
+    // i-th case
+    while (i < last + 1) {
+        switch (arr[i]) {
+            case 0:
+                [arr[i], arr[first]] = [arr[first], arr[i]];
+                queue.enqueue(new Node(['swap', first, i]));
+                first++;
+                i++;
+                break;
+
+            case 1:
+                i++;
+                break;
+            
+            case 2:
+                [arr[i], arr[last]] = [arr[last], arr[i]];
+                queue.enqueue(new Node(['swap', i, last]));
+                last--;
+                break;
+            
+            default:
+                throw new Error('Should not end up here, check inputs');
+        }
+    }
+    return [arr, queue];
+}

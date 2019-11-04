@@ -1,6 +1,6 @@
 import { Node, Queue } from './structures.js';
-import { initialise, drawArray, execute } from './graphics.js';
-import { insertionSort, mergeSort, countingSort } from './sorting.js';
+import { initialise, drawArray, execute, drawColouredArray } from './graphics.js';
+import { insertionSort, mergeSort, countingSort, partition } from './sorting.js';
 
 // TODO Comparisons should also be an action
 
@@ -30,11 +30,17 @@ document.getElementById('working').innerHTML += `
     </div>
 `
 
+document.getElementById('working').innerHTML += `
+    <div id="count">
+        <canvas id="canvas${canvasIndex+7}"></canvas>
+    </div>
+`
+
 let insArr = [...arr];
 let insDrawArr = [...arr];
 
 let canvas = document.getElementById(`canvas${canvasIndex}`);
-initialise(canvas, 1000, 100);
+initialise(canvas, screen.width, 100);
 window.requestAnimationFrame(() => {drawArray(canvas, insDrawArr)});
 
 let insResult = insertionSort(insArr, new Queue(new Node(0)));
@@ -54,7 +60,7 @@ while (i < canvasIndex+3) {
     mergeCanvases.push(document.getElementById(`canvas${i}`));
     i++;
 }
-initialise(mergeCanvases[0], 1000, 100);
+initialise(mergeCanvases[0], screen.width, 100);
 initialise(mergeCanvases[1], 500, 100);
 initialise(mergeCanvases[2], 500, 100);
 window.requestAnimationFrame(() => {drawArray(mergeCanvases[0], mergeDrawArr)});
@@ -75,9 +81,9 @@ while (i < canvasIndex+3) {
     countCanvases.push(document.getElementById(`canvas${i}`));
     i++;
 }
-initialise(countCanvases[0], 1000, 100);
-initialise(countCanvases[1], 1000, 100);
-initialise(countCanvases[2], 1000, 100);
+initialise(countCanvases[0], screen.width, 100);
+initialise(countCanvases[1], screen.width, 100);
+initialise(countCanvases[2], screen.width, 100);
 window.requestAnimationFrame(() => {drawArray(countCanvases[0], countDrawArr)});
 
 let countResult = countingSort(countArr, new Queue(new Node(0)));
@@ -85,6 +91,20 @@ let countActions = countResult[1];
 countActions.dequeue();
 console.log('count');
 window.requestAnimationFrame(() => {execute(countCanvases, [countDrawArr, []], countActions)});
+canvasIndex += 3;
+
+// Dutch Flag Problem: Orange, White, Blue, sort in that order
+let dutch = Array.from({length: 80}, () => Math.floor(Math.random() * 3));
+let drawDutch = [...dutch];
+
+let dutchCanvas = document.getElementById(`canvas${canvasIndex}`);
+initialise(dutchCanvas, screen.width, 100);
+window.requestAnimationFrame(() => {drawColouredArray(dutchCanvas, drawDutch)});
+
+let partitionResults = partition(dutch, new Queue(new Node(0)));
+let partitionActions = partitionResults[1];
+partitionActions.dequeue();
+window.requestAnimationFrame(() => {execute([dutchCanvas], [drawDutch], partitionActions, 'colour')});
 
 // // Node constructor
 // (function() {
