@@ -307,7 +307,7 @@ export function partition(arr, queue) {
     
 // }
 // kadane(test);
-function kadane(arr, queue) {
+export function kadane(arr, queue) {
     let i = 1, accMax = arr[0], netMax = accMax, s = 0, start = s, end = 0;
     queue.enqueue(new Node(['working', s]));
     while (i < arr.length) {
@@ -330,4 +330,26 @@ function kadane(arr, queue) {
 
     console.log(netMax, start, end);
     return netMax;
+}
+
+export function heapInsert(x, heap) {
+    let i = 0;
+    while (i < heap.length && heap[i] != null) {
+        // If same go on left
+        if (x > heap[i]) {
+            i = 2 * i + 2;
+        } else {
+            i = 2 * i + 1;
+        }
+    }
+
+    if (i > heap.length) {
+        let ext = new Array(i - heap.length).fill(null);
+        ext.push(x);
+        heap.push(...ext);
+    } else {
+        heap[i] = x;
+    }
+
+    return heap;
 }

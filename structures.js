@@ -11,6 +11,81 @@ export class Node {
     }
 }
 
+export class Heap {
+    // true is Min, false is Max
+    constructor(array = [], order = true) {
+        this.heap = array;
+        this._order = order;
+        this.build();
+    }
+
+    get val() {
+        return this.heap;
+    }
+
+    get order() {
+        return this._order;
+    }
+
+    set order(order = true) {
+        this._order = order;
+        this.build();
+    }
+
+    siftUp(i) {
+        let parent = Math.floor((i - 1) / 2);
+
+        if (parent > -1 && (this.heap[i] < this.heap[parent] == this._order)) {
+            [this.heap[i], this.heap[parent]] = [this.heap[parent], this.heap[i]];
+            return this.siftUp(parent);
+        }
+
+        return this.heap;
+    }
+
+    siftDown(i) {
+        let left = 2 * i + 1;
+        let right = left + 1;
+        let ext = -1;
+
+        if (this.heap[left] < this.heap[right] == this._order) {
+            ext = left;
+        } else {
+            ext = right;
+        }
+
+        if (right < this.heap.length && (this.heap[ext] < this.heap[i] == this._order)) {
+            [this.heap[i], this.heap[ext]] = [this.heap[ext], this.heap[i]];
+            return this.siftDown(ext);
+        }
+
+        return this.heap;
+    }
+
+    insert(x) {
+        this.heap.push(x);
+        this.siftUp(this.heap.length - 1);
+        return this.heap;
+    }
+
+    extract() {
+        let last = this.heap.length - 1;
+        [this.heap[0], this.heap[last]] = [this.heap[last], this.heap[0]];
+        let val = this.heap.pop();
+        this.siftDown(0);
+        return val;
+    } 
+
+    // O(n) time complexity
+    build() {
+        let i = this.heap.length - 1;
+        while (i > -1) {
+            this.siftDown(i);
+            i --;
+        }
+    }
+}
+
 export class Queue {
 
     constructor(node) {

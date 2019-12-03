@@ -1,8 +1,24 @@
-import { Node, Queue } from './structures.js';
+import { Node, Heap, Queue } from './structures.js';
 import { initialise, drawArray, execute, drawColouredArray } from './graphics.js';
-import { insertionSort, mergeSort, countingSort, partition } from './sorting.js';
+import { insertionSort, mergeSort, countingSort, partition, heapInsert } from './sorting.js';
 
 // TODO Comparisons should also be an action
+
+let heap = [];
+console.log(heapInsert(5, heap));
+console.log(heapInsert(10, heap));
+console.log(heapInsert(20, heap));
+console.log(heapInsert(3, heap));
+
+let heap2 = new Heap([10,5,6,15,30,7,9,3,1]);
+console.log(heap2.val);
+// console.log(heap2.siftUp(3));
+heap2.order = false;
+console.log(heap2.val);
+console.log(heap2.insert(100));
+console.log(heap2.extract());
+// console.log(heap2.siftDown(0));
+// console.log(heap2.siftDown(3));
 
 let test = Array.from({length: 20}, () => Math.floor(Math.random() * 20) - 10);
 console.log(test);
