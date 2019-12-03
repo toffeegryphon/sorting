@@ -174,3 +174,160 @@ export function partition(arr, queue) {
     }
     return [arr, queue];
 }
+
+/*
+    My attempt at Kadane's Algo.
+    Trying to find largest subarray sum by looking at 'slopes'.
+    First, merge same signs together for the first +ve and -ve. --(1)
+    Compare. If sum is -ve/0, move inwards. --(2)
+    Once both sides are +ve, (1) (2) for two groups, reduce.
+    If sum is -ve, move inwards.
+    Keep increasing the number of groups until...
+    not sure. Got stuck.
+    Time also O(n) because you are adding each element to some sum only once.
+    But maybe better than Kadane in some points because you can get back the subarray...
+    nah. Kadane also can get.
+*/
+// function kadane(arr) {
+//     // Combines all values of the same sign into a single value
+//     function combine(arr, i, dir = 1) {
+//         let sum = arr[i];
+//         // While the sign is the same, add
+//         while (-1 < i+dir < arr.length && arr[i] * arr[i+dir] > 0) {
+//             i += dir;
+//             sum += arr[i];
+//         }
+//         return [i+dir, sum];
+//     }
+//     let len = arr.reduce((acc, cur) => acc + cur);
+//     console.log(`Total sum is ${len}`);
+//     let i = 0, j = arr.length - 1, left = false, right = false;
+//     while (i < j) {
+//         // Maybe should do in-place combination
+//         let leftResFirst = combine(arr, i);
+//         let leftResSecond = combine(arr, leftResFirst[0]);
+//         if (leftResFirst[1] + leftResSecond[1] < 0) {
+//             i = leftResSecond[0];
+//         } else if (leftResSecond > 0) {
+//             i = leftResFirst[0];
+//         } else {
+//             left = true;
+//         }
+
+//         let rightResFirst = combine(arr, j, -1);
+//         let rightResSecond = combine(arr, rightResFirst[0], -1);
+//         if (rightResFirst[1] + leftResSecond[1] < 0) {
+//             j = rightResSecond[0];
+//         } else if (rightResSecond > 0) {
+//             j = rightResFirst[0];
+//         } else {
+//             right = true;
+//         }
+//     }
+// }
+
+// function kadane(arr) {
+//     let i = 0, j = i, sum = [arr[i]], indices = [i];
+//     while (i < arr.length) {
+//         i++;
+//         if (arr[i]*sum[j] > 0 || (arr[i] == 0 && sum[j] > 0)) {
+//             sum[j] += arr[i];
+//         } else {
+//             sum.push(arr[i]);
+//             indices.push(i);
+//             j++;
+//         }
+//     }
+//     console.log(sum);
+//     console.log(indices);
+// }
+// kadane(test);
+
+// function kadane(arr) {
+//     function check(arr, i, groups = 1, dir = 1) {
+//         //Assuming first group is always at least 0
+//         let group = 0;
+//         let groupValues = [];
+//         while (group < groups) {
+//             let positive = 0;
+//             while (-1 < i < arr.length && arr[i] * positive >= 0) {
+//                 positive += arr[i];
+//                 i += dir;
+//             }
+
+//             let negative = arr[i];
+//             i += dir;
+//             while (-1 < i < arr.length && arr[i] * negative > 0) {
+//                 negative += arr[i];
+//                 i += dir;
+//             }
+//             groupValues.push(positive+negative);
+//             group++;
+//             console.log(positive, negative);
+//         }
+//         console.log(groupValues);
+        
+//         return [i, groupValues.reduce((acc, cur) => acc + cur)];
+//     }
+
+//     let i = 0, j = arr.length-1, sum = arr.reduce((acc, cur) => acc + cur);
+//     console.log(`sum is ${sum}`);
+//     // strip negative nums first
+//     while (arr[i] <= 0) {
+//         i++;
+//     }
+//     while (arr[j] <= 0) {
+//         j--;
+//     }
+//     console.log(i, j);
+
+//     let groups = 1;
+//     while (groups < 3) {
+//         let left = false, right = false;
+//         while ( i < j && !(left && right)) {
+//             let leftRes = check(arr, i, groups);
+//             // Not include 0 to find the longest arr
+//             if (leftRes[1] <= 0) {
+//                 i = leftRes[0];
+//             } else {
+//                 left = true;
+//             }
+//             let rightRes = check(arr, j, groups, -1);
+//             if (rightRes[1] <= 0) {
+//                 j = rightRes[0];
+//             } else {
+//                 right = true;
+//             }
+//             console.log(i, j);
+//             console.log(arr.slice(i, j+1).reduce((acc, cur) => acc + cur));
+//         }
+//         groups ++;
+//     }
+
+    
+// }
+// kadane(test);
+function kadane(arr, queue) {
+    let i = 1, accMax = arr[0], netMax = accMax, s = 0, start = s, end = 0;
+    queue.enqueue(new Node(['working', s]));
+    while (i < arr.length) {
+        accMax = Math.max(accMax + arr[i], arr[i]);
+        netMax = Math.max(accMax, netMax);
+
+        // Tracking start and end of subarray
+        if (accMax == arr[i]) {
+            s = i;
+            queue.enqueue(new Node(['working', s]));
+        }
+        if (netMax == accMax) {
+            start = s;
+            queue.enqueue(new Node(['working', s]));
+            end = i;
+            queue.enqueue(new Node(['shift', end]));
+        }
+        i++;
+    }
+
+    console.log(netMax, start, end);
+    return netMax;
+}

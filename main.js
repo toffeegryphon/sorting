@@ -4,7 +4,10 @@ import { insertionSort, mergeSort, countingSort, partition } from './sorting.js'
 
 // TODO Comparisons should also be an action
 
-var arr = Array.from({length: 80}, () => Math.floor(Math.random() * 20));
+let test = Array.from({length: 20}, () => Math.floor(Math.random() * 20) - 10);
+console.log(test);
+
+let arr = Array.from({length: 80}, () => Math.floor(Math.random() * 20));
 console.log(arr);
 
 let canvasIndex = 0;
@@ -94,6 +97,10 @@ window.requestAnimationFrame(() => {execute(countCanvases, [countDrawArr, []], c
 canvasIndex += 3;
 
 // Dutch Flag Problem: Orange, White, Blue, sort in that order
+// Extension: what if there is 4 colours? 5?
+// As nColors ~> N, will become countingSort.
+// If nColors > 3, probably sacrificing space is the better idea.
+// Else use linked list for O(1) insertion.
 let dutch = Array.from({length: 80}, () => Math.floor(Math.random() * 3));
 let drawDutch = [...dutch];
 

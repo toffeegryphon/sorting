@@ -164,3 +164,4 @@ export function execute(canvases, arrays, queue, style = 'height', working) {
         }
     }
 }
+// kadane(test, new Queue(new Node(0)));
